@@ -613,20 +613,19 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	{
 		for (int j = (i * a_nSubdivisions); j < ((i * a_nSubdivisions) + a_nSubdivisions); j++)
 		{
-			AddTri(/*k1*/vertices[j],
-				   /*k2*/vertices[(j + a_nSubdivisions) % (a_nSubdivisions * a_nSubdivisions)],
-				   /*k1+1*/vertices[(j + 1) % (a_nSubdivisions * a_nSubdivisions)]);
-		
-			AddTri(/*k1+1*/vertices[(j + 1) % (a_nSubdivisions * a_nSubdivisions)],
-				   /*k2*/vertices[(j + a_nSubdivisions) % (a_nSubdivisions * a_nSubdivisions)],
-				   /*k2+1*/vertices[(j + a_nSubdivisions + 1) % (a_nSubdivisions * a_nSubdivisions)]);
+			AddQuad(vertices[j],
+				vertices[(j + 1) % (a_nSubdivisions * a_nSubdivisions)],
+				vertices[(j + (a_nSubdivisions)) % (a_nSubdivisions * a_nSubdivisions)],
+				vertices[(j + (a_nSubdivisions + 1)) % (a_nSubdivisions * a_nSubdivisions)]);
 		}
 	}
 
-	//// Generate circle base
-	//for (int i = 0; i < vertices.size() - a_nSubdivisions; i++)
+	//for (int i = 0; i < (a_nSubdivisions * a_nSubdivisions); i++)
 	//{
-	//	AddTri(vertices[i], vertices[(i+1)], vertices[(i + a_nSubdivisions)]);
+	//	AddQuad(vertices[1], 
+	//		    vertices[(1 * a_nSubdivisions) % (a_nSubdivisions * a_nSubdivisions)],
+	//			vertices[(1 + 1) % (a_nSubdivisions * a_nSubdivisions)],
+	//		    vertices[(1 * a_nSubdivisions + 1) % (a_nSubdivisions*a_nSubdivisions)]);
 	//}
 
 	// -------------------------------
