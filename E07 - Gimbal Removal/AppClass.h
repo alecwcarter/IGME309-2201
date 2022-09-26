@@ -1,5 +1,5 @@
 /*----------------------------------------------
-Programmer: Alberto Bobadilla (labigm@gmail.com)
+Programmer: Alec Carter (awc9284@rit.edu)
 Date: 2017/05
 ----------------------------------------------*/
 #ifndef __APPLICATIONCLASS_H_
@@ -10,15 +10,17 @@ Date: 2017/05
 #include "ControllerConfiguration.h"
 #include "imgui\ImGuiObject.h"
 
+#include "Simplex/Simplex.h"
 #include "MyMesh.h"
 
 class Application
 {
-	matrix4 m_m4Model = IDENTITY_M4;
-	quaternion m_qOrientation;
-	vector3 m_v3Rotation;
-	MyMesh* m_pMesh = nullptr;
-	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	vector3 m_v3Rotation; //orientation for the Model in vectors
+	Simplex::Model* m_pModel = nullptr; //Model to display
+	matrix4 m_m4Steve; //Model to world matrix for Steve
+	quaternion m_qOrientation; //orientation for the Model in quaternions
+
+	String m_sProgrammer = "Alec Carter - awc9284@rit.edu";
 
 private:
 	static ImGuiObject gui; //GUI object

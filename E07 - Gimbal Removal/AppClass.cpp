@@ -1,10 +1,13 @@
 #include "AppClass.h"
 void Application::InitVariables(void)
 {
-	//init the mesh
-	m_pMesh = new MyMesh();
-	//m_pMesh->GenerateCube(1.0f, C_WHITE);
-	m_pMesh->GenerateCone(2.0f, 5.0f, 3, C_WHITE);
+	//Set the position and target of the camera
+	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
+	m_pCameraMngr->SetPositionTargetAndUpward(AXIS_Z * 10.0f, ZERO_V3, AXIS_Y);
+
+	m_pModel = new Simplex::Model();
+
+	m_pModel->Load("Minecraft\\Steve.obj");
 }
 void Application::Update(void)
 {
@@ -16,22 +19,47 @@ void Application::Update(void)
 
 	//Is the first person camera active?
 	CameraRotation();
+
+	//Get a timer
+	static uint uClock = m_pSystem->GenClock();
+	float fTimer = m_pSystem->GetTimeSinceStart(uClock);
+	float fDeltaTime = m_pSystem->GetDeltaTime(uClock);
+
+	if (false) 
+	{
+		quaternion q1;
+		quaternion q2 = glm::angleAxis(glm::radians(359.9f), vector3(0.0f, 0.0f, 1.0f));
+		float fPercentage = MapValue(fTimer, 0.0f, 5.0f, 0.0f, 1.0f);
+		quaternion qSLERP = glm::mix(q1, q2, fPercentage);
+		m_m4Steve = glm::toMat4(qSLERP);
+	}
+
+	if (false) 
+	{
+		matrix4 m4OrientX = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.x), vector3(1.0f, 0.0f, 0.0f));
+		matrix4 m4OrientY = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.y), vector3(0.0f, 1.0f, 0.0f));
+		matrix4 m4OrientZ = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.z), vector3(0.0f, 0.0f, 1.0f));
+
+		matrix4 m4Orientation = m4OrientX * m4OrientY * m4OrientZ;
+		m_m4Steve = glm::toMat4(m_qOrientation);
+	}
+
+	if (true) 
+	{
+		//orientation using quaternions
+		m_m4Steve = glm::toMat4(m_qOrientation);
+	}
+
+	//Attach the model matrix that takes me from the world coordinate system
+	m_pModel->SetModelMatrix(m_m4Steve);
+
+	//Send the model to render list
+	m_pModel->AddToRenderList();
 }
 void Application::Display(void)
 {
 	// Clear the screen
 	ClearScreen();
-
-	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
-	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
-
-	m_m4Model = glm::rotate(IDENTITY_M4, glm::radians(m_v3Rotation.x), vector3(1.0f, 0.0f, 0.0f));
-	m_m4Model = glm::rotate(m_m4Model, glm::radians(m_v3Rotation.y), vector3(0.0f, 1.0f, 0.0f));
-	m_m4Model = glm::rotate(m_m4Model, glm::radians(m_v3Rotation.z), vector3(0.0f, 0.0f, 1.0f));
-	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_m4Model));
-
-	//m_qOrientation = m_qOrientation * glm::angleAxis(glm::radians(1.0f), vector3(1.0f));
-	//m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qOrientation));
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
@@ -50,7 +78,7 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
-	SafeDelete(m_pMesh);
+	SafeDelete(m_pModel);
 
 	//release GUI
 	ShutdownGUI();

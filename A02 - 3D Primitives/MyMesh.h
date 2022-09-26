@@ -1,6 +1,6 @@
 /*----------------------------------------------
-Programmer: Alberto Bobadilla (labigm@gmail.com)
-Date: 2017/05
+Programmer: Alec Carter (awc9284@rit.edu)
+Date: 9-25-2022
 ----------------------------------------------*/
 #ifndef __MYMESH_H_
 #define __MYMESH_H_

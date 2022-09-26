@@ -276,7 +276,36 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	std::vector<vector3> vertices;
+	// starting degree/radian for the circle
+	float degree = 0;
+	// degrees of the circle (pi being a semi-circle so 2pi is the full circle) 
+	// divided by the number of subdivisions that will make the circle
+	float nextDegree = 2 * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// finds the location of the point using the cos and sin of the 
+		// theta and multiplying it by the length of the radius
+		vector3 temp = vector3(cos(degree) * a_fRadius, sin(degree) * a_fRadius, 0.0f);
+		degree += nextDegree;
+		vertices.push_back(temp);
+	}
+
+	// Generate circle base
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddTri(ZERO_V3, vertices[i], vertices[i + 1]);
+	}
+	AddTri(ZERO_V3, vertices[a_nSubdivisions - 1], vertices[0]);
+
+	// Generate cone walls
+	for (int i = a_nSubdivisions - 1; i > 0; i--)
+	{
+		AddTri(vector3(0, 0, a_fHeight), vertices[i], vertices[i - 1]);
+	}
+	AddTri(vector3(0, 0, a_fHeight), vertices[0], vertices[a_nSubdivisions - 1]);
 	// -------------------------------
 
 	// Adding information about color
@@ -300,7 +329,53 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	std::vector<vector3> topVertices;
+	// starting degree/radian for the circle
+	float degree = 0;
+	// degrees of the circle (pi being a semi-circle so 2pi is the full circle) 
+	// divided by the number of subdivisions that will make the circle
+	float nextDegree = 2 * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// finds the location of the point using the cos and sin of the 
+		// theta and multiplying it by the length of the radius
+		vector3 temp = vector3(cos(degree) * a_fRadius, sin(degree) * a_fRadius, a_fHeight);
+		degree += nextDegree;
+		topVertices.push_back(temp);
+	}
+
+	std::vector<vector3> bottomVertices;
+	// starting degree/radian for the circle
+	degree = 0;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// finds the location of the point using the cos and sin of the 
+		// theta and multiplying it by the length of the radius
+		vector3 temp = vector3(cos(degree) * a_fRadius, sin(degree) * a_fRadius, 0.0f);
+		degree += nextDegree;
+		bottomVertices.push_back(temp);
+	}
+
+	// Generate circle base bottom and cylinder walls
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		AddTri(vector3(0, 0, a_fHeight), topVertices[i], topVertices[i + 1]);
+		// adds walls
+		AddQuad(bottomVertices[i], bottomVertices[i + 1], topVertices[i], topVertices[i + 1]);
+	}
+	AddTri(vector3(0, 0, a_fHeight), topVertices[a_nSubdivisions - 1], topVertices[0]);
+	// adds last wall
+	AddQuad(bottomVertices[a_nSubdivisions - 1], bottomVertices[0], topVertices[a_nSubdivisions - 1], topVertices[0]);
+
+	// Generate circle base top
+	for (int i = a_nSubdivisions - 1; i > 0; i--)
+	{
+		AddTri(ZERO_V3, bottomVertices[i], bottomVertices[i - 1]);
+	}
+	AddTri(ZERO_V3, bottomVertices[0], bottomVertices[a_nSubdivisions - 1]);
 	// -------------------------------
 
 	// Adding information about color
@@ -330,7 +405,92 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+
+	// Outer tube walls
+
+	std::vector<vector3> topOuterVertices;
+	// starting degree/radian for the circle
+	float degree = 0;
+	// degrees of the circle (pi being a semi-circle so 2pi is the full circle) 
+	// divided by the number of subdivisions that will make the circle
+	float nextDegree = 2 * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// finds the location of the point using the cos and sin of the 
+		// theta and multiplying it by the length of the radius
+		vector3 temp = vector3(cos(degree) * a_fOuterRadius, sin(degree) * a_fOuterRadius, a_fHeight);
+		degree += nextDegree;
+		topOuterVertices.push_back(temp);
+	}
+
+	std::vector<vector3> bottomOuterVertices;
+	// starting degree/radian for the circle
+	degree = 0;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// finds the location of the point using the cos and sin of the 
+		// theta and multiplying it by the length of the radius
+		vector3 temp = vector3(cos(degree) * a_fOuterRadius, sin(degree) * a_fOuterRadius, 0.0f);
+		degree += nextDegree;
+		bottomOuterVertices.push_back(temp);
+	}
+
+	// Inner tube walls
+
+	std::vector<vector3> topInnerVertices;
+	// starting degree/radian for the circle
+	degree = 0;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// finds the location of the point using the cos and sin of the 
+		// theta and multiplying it by the length of the radius
+		vector3 temp = vector3(cos(degree) * a_fInnerRadius, sin(degree) * a_fInnerRadius, a_fHeight);
+		degree += nextDegree;
+		topInnerVertices.push_back(temp);
+	}
+
+	std::vector<vector3> bottomInnerVertices;
+	// starting degree/radian for the circle
+	degree = 0;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// finds the location of the point using the cos and sin of the 
+		// theta and multiplying it by the length of the radius
+		vector3 temp = vector3(cos(degree) * a_fInnerRadius, sin(degree) * a_fInnerRadius, 0.0f);
+		degree += nextDegree;
+		bottomInnerVertices.push_back(temp);
+	}
+
+	// Generate outer tube walls and top rim
+	for (int i = 0; i < a_nSubdivisions - 1; i++)
+	{
+		// outer walls
+		AddQuad(bottomOuterVertices[i], bottomOuterVertices[i + 1], topOuterVertices[i], topOuterVertices[i + 1]);
+		// top rim
+		AddQuad(topOuterVertices[i], topOuterVertices[i + 1], topInnerVertices[i], topInnerVertices[i + 1]);
+	}
+	// adds last wall
+	AddQuad(bottomOuterVertices[a_nSubdivisions - 1], bottomOuterVertices[0], topOuterVertices[a_nSubdivisions - 1], topOuterVertices[0]);
+	// adds last top rim piece
+	AddQuad(topOuterVertices[a_nSubdivisions - 1], topOuterVertices[0], topInnerVertices[a_nSubdivisions - 1], topInnerVertices[0]);
+
+	// Generate inner tube walls and bottom rim
+	for (int i = a_nSubdivisions - 1; i > 0; i--)
+	{
+		// inner walls
+		AddQuad(bottomInnerVertices[i], bottomInnerVertices[i - 1], topInnerVertices[i], topInnerVertices[i - 1]);
+		// bottom rim
+		AddQuad(bottomOuterVertices[i], bottomOuterVertices[i - 1], bottomInnerVertices[i], bottomInnerVertices[i - 1]);
+	}
+	// adds last wall
+	AddQuad(bottomInnerVertices[0], bottomInnerVertices[a_nSubdivisions - 1], topInnerVertices[0], topInnerVertices[a_nSubdivisions - 1]);
+	// adds last bottom rim piece
+	AddQuad(bottomOuterVertices[0], bottomOuterVertices[a_nSubdivisions - 1], bottomInnerVertices[0], bottomInnerVertices[a_nSubdivisions - 1]);
+
 	// -------------------------------
 
 	// Adding information about color
@@ -362,7 +522,44 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+
+	std::vector<vector3> vertices;
+	// starting degree/radian for the circle
+	float degreeA = 0;
+	float degreeB = 0;
+	// degrees of the circle (pi being a semi-circle so 2pi is the full circle) 
+	// divided by the number of subdivisions that will make the circle
+	float nextDegreeA = 2 * PI / a_nSubdivisionsA;
+	float nextDegreeB = 2 * PI / a_nSubdivisionsB;
+
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		// Creates vertices of the torus
+		for (int j = 0; j < a_nSubdivisionsB; j++)
+		{
+			vector3 tempB = vector3(/*x*/(a_fOuterRadius + a_fInnerRadius * cos(degreeA)) * cos(degreeB),
+									/*y*/(a_fOuterRadius + a_fInnerRadius * cos(degreeA)) * sin(degreeB),
+									/*z*/sin(degreeA) * a_fInnerRadius);
+			degreeB += nextDegreeB;
+			vertices.push_back(tempB);
+		}
+		degreeB = 0;
+		degreeA += nextDegreeA;
+	}
+
+	// Generate Torus
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		for (int j = (i * a_nSubdivisionsB); j < ((i * a_nSubdivisionsA) + a_nSubdivisionsB); j++)
+		{
+			AddQuad(vertices[j], 
+					vertices[(j + 1)%(a_nSubdivisionsA * a_nSubdivisionsB)], 
+					vertices[(j + (a_nSubdivisionsB)) % (a_nSubdivisionsA * a_nSubdivisionsB)], 
+					vertices[(j + (a_nSubdivisionsB + 1)) % (a_nSubdivisionsA * a_nSubdivisionsB)]);
+		}
+	}
+
+
 	// -------------------------------
 
 	// Adding information about color
@@ -387,7 +584,51 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	std::vector<vector3> vertices;
+	// starting degree/radian for the circle
+	float degreeA = 0;
+	float degreeB = 0;
+	// degrees of the circle (pi being a semi-circle so 2pi is the full circle) 
+	// divided by the number of subdivisions that will make the circle
+	float nextDegree = 2 * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// finds the location of the point using the cos and sin of the 
+		// theta and multiplying it by the length of the radius
+		for (int j = 0; j < a_nSubdivisions; j++)
+		{
+			vector3 temp = vector3(/*x*/(a_fRadius * cos(degreeA)) * cos(degreeB),
+								   /*y*/(a_fRadius * cos(degreeA)) * sin(degreeB),
+								   /*z*/sin(degreeA) * a_fRadius);
+			degreeB += nextDegree;
+			vertices.push_back(temp);
+		}
+		degreeB = 0;
+		degreeA += nextDegree;
+	}
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		for (int j = (i * a_nSubdivisions); j < ((i * a_nSubdivisions) + a_nSubdivisions); j++)
+		{
+			AddTri(/*k1*/vertices[j],
+				   /*k2*/vertices[(j + a_nSubdivisions) % (a_nSubdivisions * a_nSubdivisions)],
+				   /*k1+1*/vertices[(j + 1) % (a_nSubdivisions * a_nSubdivisions)]);
+		
+			AddTri(/*k1+1*/vertices[(j + 1) % (a_nSubdivisions * a_nSubdivisions)],
+				   /*k2*/vertices[(j + a_nSubdivisions) % (a_nSubdivisions * a_nSubdivisions)],
+				   /*k2+1*/vertices[(j + a_nSubdivisions + 1) % (a_nSubdivisions * a_nSubdivisions)]);
+		}
+	}
+
+	//// Generate circle base
+	//for (int i = 0; i < vertices.size() - a_nSubdivisions; i++)
+	//{
+	//	AddTri(vertices[i], vertices[(i+1)], vertices[(i + a_nSubdivisions)]);
+	//}
+
 	// -------------------------------
 
 	// Adding information about color
